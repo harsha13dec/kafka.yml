@@ -9,11 +9,29 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+stages:
+- stage: DeployWebsite
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+  displayName: 'Deploy website'
+
+  jobs:
+
+    - deployment: DeployWebsite
+
+      displayName: 'Deploy website'
+
+      environment: 
+
+        name: Test-ENV
+
+        resourceType: VirtualMachine
+
+      strategy:
+
+       runOnce:
+
+           deploy:
+
+            steps:
+
+              - script:   sudo mkdir Ram
