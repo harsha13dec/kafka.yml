@@ -55,4 +55,3 @@ steps:
         sudo systemctl daemon-reload
         sudo systemctl start zookeeper
         sudo systemctl start kafka
-  - 
