@@ -6,32 +6,53 @@
 trigger:
 - main
 
-pool:
-  vmImage: ubuntu-latest
-
-stages:
-- stage: DeployWebsite
-
-  displayName: 'Deploy website'
-
-  jobs:
-
-    - deployment: DeployWebsite
-
-      displayName: 'Deploy website'
-
-      environment: 
-
-        name: Test-ENV
-
-        resourceType: VirtualMachine
-
-      strategy:
-
-       runOnce:
-
-           deploy:
-
-            steps:
-
-              - script:   sudo mkdir Ram
+pool: Default
+steps:
+  - task: CmdLine@2
+    inputs:
+      script: |
+        sudo apt update -y
+        sudo apt install default-jdk -y
+        sudo wget https://downloads.apache.org/kafka/3.3.1/kafka_2.12-3.3.1.tgz
+        sudo tar xvf kafka_2.12-3.3.1.tgz
+        
+        sudo cat <<ABC >> /etc/systemd/system/zookeeper.service
+        [Unit]
+        Description=Apache Zookeeper server
+        Documentation=http://zookeeper.apache.org
+        Requires=network.target remote-fs.target
+        After=network.target remote-fs.target
+        
+        [Service]
+        Type=simple
+        ExecStart= nohup /usr/local/kafka/bin/zookeeper-server-start.sh /usr/local/kafka/config/zookeeper.properties 
+        ExecStop=/usr/local/kafka/bin/zookeeper-server-stop.sh
+        Restart=on-abnormal
+        
+        [Install]
+        WantedBy=multi-user.target
+        ABC
+        
+        sudo cat <<CDF >> /etc/systemd/system/kafka.service
+        [Unit]
+        Description=Apache Kafka Server
+        Documentation=http://kafka.apache.org/documentation.html
+        Requires=zookeeper.service
+        
+        [Service]
+        Type=simple
+        Environment="JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64"
+        ExecStart= nohup /usr/local/kafka/bin/kafka-server-start.sh /usr/local/kafka/config/server.properties
+        ExecStop=/usr/local/kafka/bin/kafka-server-stop.sh
+        
+        [Install]
+        WantedBy=multi-user.target
+        CDF
+        
+        sudo systemctl daemon-reload
+        
+        
+        sudo systemctl daemon-reload
+        sudo systemctl start zookeeper
+        sudo systemctl start kafka
+  - 
