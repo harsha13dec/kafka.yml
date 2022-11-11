@@ -39,7 +39,7 @@
       become: yes
       become_user: kafka
       unarchive:
-        src: https://downloads.apache.org/kafka/3.3.1/kafka-3.3.1-src.tgz
+        src: https://downloads.apache.org/kafka/3.3.1/kafka_2.12-3.3.1.tgz
         dest: "{{installation_dir}}"
         mode: 0755
         remote_src: yes
